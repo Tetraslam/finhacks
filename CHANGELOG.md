@@ -1,0 +1,115 @@
+# Changelog
+
+## [Unreleased]
+
+### Added
+- Professional PDF Export functionality
+  - Beautiful, clean design with custom typography
+  - Comprehensive report sections:
+    - Demographics overview
+    - Census analysis
+    - Financial profile and risk factors
+    - Behavioral insights
+    - Lifestyle analysis
+    - Spending habits breakdown
+  - Loading state indication
+  - Error handling with user feedback
+  - Custom styling with modern color scheme
+  - Proper formatting for dates and currency
+  - Version tracking and metadata
+- Enhanced Export/Import functionality
+  - Comprehensive JSON export including all generated data
+    - Demographics and Census insights
+    - LLM feedback and analysis
+    - Lifestyle analysis and daily schedule
+    - Spending habits and financial data
+    - Export metadata and versioning
+  - Improved JSON import with data validation
+    - Automatic re-running of analysis on import
+    - Data consistency checks
+    - Version compatibility checking
+  - Placeholder for future PDF export
+  - Seamless integration with main workflow
+- New "Day in the Life" feature
+  - Detailed daily schedule generation
+  - Timeline-based narrative of activities
+  - Lifestyle analysis based on demographics
+  - Markdown formatting for better readability
+  - Interactive visualizations with Plotly
+  - Marketing insights for businesses
+  - Financial profiling for institutions
+  - Location analysis for urban planners
+- Enhanced LLM feedback component with markdown rendering support
+- Added dark mode support for markdown content
+- Added Heroicons for improved UI visuals
+- Enhanced form synchronization with natural language input
+  - Immediate form population from NLP
+  - Refined results from OpenAI
+  - Seamless UX between input methods
+- Improvements in spending calculations and demographic insights
+- State persistence for LLM components using localStorage
+  - Cached insights between tab switches
+  - Reduced unnecessary API calls
+  - Improved performance and UX
+- New "What If" Scenarios feature
+  - Interactive scenario builder with multiple categories:
+    - Income changes and adjustments
+    - Location changes with cost of living impact
+    - Market condition simulations
+    - Life event impact analysis
+    - Economic policy effects
+  - Real-time scenario generation and analysis
+  - Dynamic UI controls (sliders, dropdowns)
+  - Side-by-side comparison with original demographics
+  - Automatic impact analysis and visualization
+  - Integration with existing insights and charts
+  - Seamless state management
+- New "Price this product" feature
+  - Interactive product pricing analysis tool
+  - Comprehensive pricing factors:
+    - Demographic spending patterns
+    - Market conditions and trends
+    - Competitive analysis
+    - Price sensitivity metrics
+  - Visual price range recommendations
+  - Detailed pricing justification
+  - Dynamic price elasticity analysis
+  - Target market fit assessment
+  - Purchase likelihood predictions
+  - Custom product category support
+  - Real-time price optimization suggestions
+
+### Changed
+- Updated wording to reflect digital twin creation for others rather than self
+- Fixed Census API integration issues
+- Improved error handling in demographic data fetching
+- Reorganized analysis tab with new lifestyle components
+- Enhanced UX flow with automatic tab switching after import
+
+### Fixed
+- Resolved API endpoint issues with explicit URLs
+- Fixed form synchronization issues
+- Corrected possessive language in UI text
+- Fixed multiple API calls in LLM components
+- Fixed SSR issues with Plotly integration
+- Export/Import functionality
+  - Fixed null value handling in JSON exports
+  - Improved PDF generation error handling
+  - Added graceful fallbacks for missing data in PDF exports
+  - Enhanced error messages for better debugging
+  - Fixed PDF generation issues with empty sections
+- PDF Export functionality
+  - Fixed handling of structured census insights
+  - Added proper null checks for all data fields
+  - Improved PDF generation error handling
+  - Enhanced layout for census data with subsections
+  - Added fallback values for missing data
+  - Fixed React-PDF component issues
+  - Fixed font loading issues by using system fonts
+  - Added nested error handling for PDF generation
+  - Improved error messages for debugging
+  - Added descriptive filenames for exported PDFs
+  - Fixed DataView bounds error
+
+## [0.1.0] - 2024-01-18
+- Initial release with basic Census API integration 
