@@ -125,9 +125,25 @@ export function ExportImport({
         },
         lifestyleAnalysis: lifestyleAnalysis || {
           schedule: "",
-          marketingInsights: "",
-          financialInsights: "",
-          locationInsights: "",
+          marketingInsights: {
+            shoppingHabits: [],
+            brandPreferences: [],
+            pricePoints: [],
+            mediaConsumption: [],
+            decisionFactors: []
+          },
+          financialInsights: {
+            dailySpending: [],
+            paymentMethods: [],
+            financialGoals: [],
+            investmentStyle: "",
+            riskTolerance: ""
+          },
+          locationInsights: {
+            frequentedLocations: [],
+            commutePatterns: [],
+            neighborhoodPreferences: []
+          }
         },
         spendingHabits: spendingHabits || [],
         exportDate: new Date().toISOString(),
@@ -139,8 +155,7 @@ export function ExportImport({
       // Create the PDF document with error boundary
       let pdfBlob: Blob | null = null
       try {
-        const pdfDoc = <PDFDocument data={exportData} />
-        pdfBlob = await pdf(pdfDoc).toBlob()
+        pdfBlob = await pdf(React.createElement(PDFDocument, { data: exportData })).toBlob()
       } catch (pdfError) {
         console.error("PDF generation error:", pdfError)
         throw new Error("Failed to generate PDF document. Please try again.")

@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     console.log("Generating insights for demographics:", demographics)
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",

@@ -18,6 +18,9 @@ import { generatePersona } from "@/lib/persona"
 import { WhatIfScenarios } from "@/components/WhatIfScenarios"
 import { PriceProduct } from "@/components/PriceProduct"
 import React from "react"
+import { CorrelationInsights } from "@/components/CorrelationInsights"
+import { XYComparison } from "@/components/XYComparison"
+import { WordOfMouth } from "@/components/WordOfMouth"
 
 export default function Home() {
   const [demographics, setDemographics] = useState<Demographics | null>(null)
@@ -32,6 +35,9 @@ export default function Home() {
   const [scenarioDemographics, setScenarioDemographics] = useState<Demographics | null>(null)
   const [scenarioInsights, setScenarioInsights] = useState<ValidationResult["insights"] | null>(null)
   const lifestyleCache = React.useRef<{[key: string]: any}>({})
+  const correlationCache = React.useRef<{[key: string]: any}>({})
+  const xyComparisonCache = React.useRef<{[key: string]: any}>({})
+  const wordOfMouthCache = React.useRef<{[key: string]: any}>({})
 
   const handleDemographicsGenerated = async (data: Demographics) => {
     setDemographics(data)
@@ -113,7 +119,10 @@ export default function Home() {
           <TabsList>
             <TabsTrigger value="create">Create Twin</TabsTrigger>
             <TabsTrigger value="analyze">Analyze</TabsTrigger>
+            <TabsTrigger value="correlations">Correlations</TabsTrigger>
+            <TabsTrigger value="xy-comparison">X vs Y</TabsTrigger>
             <TabsTrigger value="scenarios">What-If</TabsTrigger>
+            <TabsTrigger value="word-of-mouth">Word-of-Mouth</TabsTrigger>
             <TabsTrigger value="export">Export/Import</TabsTrigger>
             <TabsTrigger value="price">Price This Product</TabsTrigger>
           </TabsList>
@@ -143,24 +152,14 @@ export default function Home() {
                   </div>
                 </div>
                 <DemographicForm 
-                  initialData={demographics || undefined}
+                  initialData={demographics}
                   onSubmit={handleDemographicsGenerated}
                 />
-                {insights && (
+                {demographics && (
                   <>
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">
-                          Demographic Analysis
-                        </span>
-                      </div>
-                    </div>
-                    <DemographicInsights insights={insights} />
-                    {demographics && insights && (
+                    {insights && (
                       <>
+                        <DemographicInsights insights={insights} />
                         <SpendingChart 
                           data={generatePersona(demographics, {
                             medianAge: 35,
@@ -182,14 +181,14 @@ export default function Home() {
                             }
                           }).spendingHabits}
                         />
-                        <LLMFeedback 
-                          prompt={prompt}
-                          demographics={demographics}
-                          submitted={submitted}
-                          onFeedbackGenerated={setLLMFeedback}
-                        />
                       </>
                     )}
+                    <LLMFeedback 
+                      prompt={prompt}
+                      demographics={demographics}
+                      submitted={submitted}
+                      onFeedbackGenerated={setLLMFeedback}
+                    />
                   </>
                 )}
               </CardContent>
@@ -234,6 +233,50 @@ export default function Home() {
                 </Card>
               )}
             </div>
+          </TabsContent>
+          <TabsContent value="correlations" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Correlation Insights</CardTitle>
+                <CardDescription>
+                  Analyze relationships between different financial and demographic metrics.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {demographics ? (
+                  <CorrelationInsights 
+                    demographics={demographics}
+                    cache={correlationCache.current}
+                  />
+                ) : (
+                  <p className="text-muted-foreground">
+                    Create a digital twin first to see correlation insights.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="xy-comparison" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>X vs Y Comparison</CardTitle>
+                <CardDescription>
+                  Compare any two financial metrics to discover relationships and patterns.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {demographics ? (
+                  <XYComparison 
+                    demographics={demographics}
+                    cache={xyComparisonCache.current}
+                  />
+                ) : (
+                  <p className="text-muted-foreground">
+                    Create a digital twin first to compare metrics.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
           <TabsContent value="scenarios" className="space-y-4">
             <div className="grid gap-4 grid-cols-2">
@@ -285,6 +328,28 @@ export default function Home() {
                 </Card>
               )}
             </div>
+          </TabsContent>
+          <TabsContent value="word-of-mouth" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Word-of-Mouth Analysis</CardTitle>
+                <CardDescription>
+                  Analyze social network influence and word-of-mouth marketing potential.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {demographics ? (
+                  <WordOfMouth 
+                    demographics={demographics}
+                    cache={wordOfMouthCache.current}
+                  />
+                ) : (
+                  <p className="text-muted-foreground">
+                    Create a digital twin first to analyze their social network and word-of-mouth potential.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
           <TabsContent value="export" className="space-y-4">
             <Card>

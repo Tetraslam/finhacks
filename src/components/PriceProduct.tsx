@@ -129,8 +129,19 @@ export function PriceProduct({ demographics }: PriceProductProps) {
 
   const [isLoading, setIsLoading] = React.useState(false)
   const [currentFeature, setCurrentFeature] = React.useState("")
+  const [streamedResponse, setStreamedResponse] = React.useState("")
   const { toast } = useToast()
   const hasRun = React.useRef(false)
+
+  // Memoize the demographics object to prevent unnecessary re-renders
+  const memoizedDemographics = React.useMemo(() => demographics, [
+    demographics.age,
+    demographics.occupation,
+    demographics.income,
+    demographics.location.state,
+    demographics.education,
+    demographics.maritalStatus
+  ])
 
   const handleAddFeature = () => {
     if (!currentFeature.trim()) return
@@ -175,6 +186,7 @@ export function PriceProduct({ demographics }: PriceProductProps) {
 
     try {
       setIsLoading(true)
+      setStreamedResponse("")
       hasRun.current = true
       const response = await fetch("/api/price-product", {
         method: "POST",
@@ -182,7 +194,7 @@ export function PriceProduct({ demographics }: PriceProductProps) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          demographics,
+          demographics: memoizedDemographics,
           product: productDetails
         })
       })
@@ -191,9 +203,39 @@ export function PriceProduct({ demographics }: PriceProductProps) {
         throw new Error("Failed to analyze product pricing")
       }
 
-      const data = await response.json()
-      setInsights(data)
-      localStorage.setItem("pricing_insights", JSON.stringify({ demographics, insights: data }))
+      if (!response.body) throw new Error("No response body")
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      let accumulatedResponse = ""
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value)
+        accumulatedResponse += chunk
+        setStreamedResponse(accumulatedResponse)
+
+        try {
+          // Try to parse the accumulated response as JSON
+          const data = JSON.parse(accumulatedResponse)
+          // Only update insights if we have valid data structure
+          if (
+            data.recommendedPrice?.min !== undefined &&
+            data.recommendedPrice?.max !== undefined &&
+            data.recommendedPrice?.optimal !== undefined
+          ) {
+            setInsights(data)
+            localStorage.setItem("pricing_insights", JSON.stringify({ 
+              demographics: memoizedDemographics, 
+              insights: data 
+            }))
+          }
+        } catch (e) {
+          // Not valid JSON yet, continue accumulating
+        }
+      }
     } catch (error) {
       console.error("Failed to analyze product pricing:", error)
       toast({
@@ -206,6 +248,16 @@ export function PriceProduct({ demographics }: PriceProductProps) {
       setIsLoading(false)
     }
   }
+
+  const renderStreamingContent = () => {
+    if (!streamedResponse) return null;
+
+    return (
+      <div className="font-mono text-sm whitespace-pre-wrap opacity-50">
+        {streamedResponse}
+      </div>
+    );
+  };
 
   const renderPriceDistribution = () => {
     if (!safeInsights?.visualizations?.priceDistribution?.prices?.length) return null
@@ -427,6 +479,7 @@ export function PriceProduct({ demographics }: PriceProductProps) {
 
       {isLoading ? (
         <div className="space-y-4">
+          {renderStreamingContent()}
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-5/6" />

@@ -81,40 +81,70 @@ Target Demographic:
 
 Provide a comprehensive pricing analysis considering the demographic profile, market conditions, and competitive landscape.`
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         { role: "user", content: prompt }
       ],
       temperature: 0.7,
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      stream: true
     })
 
-    const insights = JSON.parse(response.choices[0].message.content || "{}")
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        let fullResponse = ""
+        
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || ""
+            fullResponse += content
+            controller.enqueue(encoder.encode(content))
+          }
+          
+          // Validate the full response is valid JSON
+          const insights = JSON.parse(fullResponse)
 
-    // Generate price points for visualizations if not provided
-    if (!insights.visualizations?.priceDistribution?.prices) {
-      const minPrice = insights.recommendedPrice.min
-      const maxPrice = insights.recommendedPrice.max
-      const step = (maxPrice - minPrice) / 10
-      insights.visualizations = {
-        priceDistribution: {
-          prices: Array.from({ length: 11 }, (_, i) => minPrice + i * step),
-          probabilities: Array.from({ length: 11 }, () => Math.random())
-        },
-        sensitivityCurve: {
-          prices: Array.from({ length: 11 }, (_, i) => minPrice + i * step),
-          demand: Array.from({ length: 11 }, (_, i) => Math.max(0, 1 - i * 0.1))
+          // Generate price points for visualizations if not provided
+          if (!insights.visualizations?.priceDistribution?.prices) {
+            const minPrice = insights.recommendedPrice.min
+            const maxPrice = insights.recommendedPrice.max
+            const step = (maxPrice - minPrice) / 10
+            insights.visualizations = {
+              priceDistribution: {
+                prices: Array.from({ length: 11 }, (_, i) => minPrice + i * step),
+                probabilities: Array.from({ length: 11 }, () => Math.random())
+              },
+              sensitivityCurve: {
+                prices: Array.from({ length: 11 }, (_, i) => minPrice + i * step),
+                demand: Array.from({ length: 11 }, (_, i) => Math.max(0, 1 - i * 0.1))
+              }
+            }
+            // Send the visualization data as a separate chunk
+            controller.enqueue(encoder.encode(JSON.stringify(insights.visualizations)))
+          }
+          
+          controller.close()
+        } catch (error) {
+          controller.error(error)
         }
       }
-    }
+    })
 
-    return new NextResponse(JSON.stringify(insights))
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    })
+
   } catch (error) {
     console.error("Failed to analyze product pricing:", error)
-    return new NextResponse(
-      JSON.stringify({ error: "Failed to analyze product pricing" }),
+    return NextResponse.json(
+      { error: "Failed to analyze product pricing" },
       { status: 500 }
     )
   }

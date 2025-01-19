@@ -57,9 +57,11 @@ export function LLMFeedback({
       return null
     }
   })
+  const [streamedResponse, setStreamedResponse] = React.useState("")
   const [isLoading, setIsLoading] = React.useState(false)
   const { toast } = useToast()
   const hasRun = React.useRef(false)
+  const responseRef = React.useRef("")
 
   React.useEffect(() => {
     const fetchInsights = async () => {
@@ -69,6 +71,9 @@ export function LLMFeedback({
       try {
         setIsLoading(true)
         hasRun.current = true
+        setStreamedResponse("")
+        responseRef.current = ""
+        
         const response = await fetch("/api/insights", {
           method: "POST",
           headers: {
@@ -84,19 +89,37 @@ export function LLMFeedback({
           throw new Error("Failed to fetch insights")
         }
 
-        const data = await response.json()
-        
-        // Extract the markdown content from the response
-        const markdownContent = extractMarkdownContent(data)
-        setInsights(markdownContent)
+        if (!response.body) throw new Error("No response body")
+
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+
+        while (true) {
+          const { value, done } = await reader.read()
+          if (done) break
+
+          const chunk = decoder.decode(value)
+          responseRef.current += chunk
+          // Use a function to update state to ensure we always have the latest value
+          setStreamedResponse(prev => prev + chunk)
+        }
+
+        // Store the final response
+        setInsights(responseRef.current)
         
         if (onFeedbackGenerated) {
-          onFeedbackGenerated(data)
+          onFeedbackGenerated({
+            financialProfile: "",
+            riskFactors: "",
+            opportunities: "",
+            behavioralInsights: "",
+            recommendations: responseRef.current,
+          })
         }
         
         localStorage.setItem("llm_insights", JSON.stringify({ 
           prompt, 
-          insights: markdownContent 
+          insights: responseRef.current 
         }))
       } catch (error) {
         console.error("Failed to fetch insights:", error)
@@ -127,11 +150,13 @@ export function LLMFeedback({
           <Skeleton className="h-4 w-3/4" />
           <Skeleton className="h-4 w-5/6" />
         </div>
-      ) : insights ? (
+      ) : (
         <div className="prose prose-sm max-w-none dark:prose-invert">
-          <ReactMarkdown>{insights}</ReactMarkdown>
+          <ReactMarkdown>
+            {streamedResponse || insights || ""}
+          </ReactMarkdown>
         </div>
-      ) : null}
+      )}
     </Card>
   )
 } 

@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4-turbo-preview",
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -38,16 +38,34 @@ Keep responses concise but insightful. Use bullet points for clarity.`,
       ],
       temperature: 0.7,
       max_tokens: 1000,
+      stream: true
     })
 
-    const insights = completion.choices[0].message.content
+    const encoder = new TextEncoder()
+    const readable = new ReadableStream({
+      async start(controller) {
+        let fullResponse = ""
+        
+        try {
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || ""
+            fullResponse += content
+            controller.enqueue(encoder.encode(content))
+          }
+          
+          controller.close()
+        } catch (error) {
+          controller.error(error)
+        }
+      }
+    })
 
-    if (!insights) {
-      throw new Error("No insights generated")
-    }
-
-    return new Response(JSON.stringify({ insights }), {
-      headers: { "Content-Type": "application/json" },
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     })
   } catch (error) {
     console.error("Failed to generate insights:", error)

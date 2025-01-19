@@ -78,6 +78,58 @@
   - Purchase likelihood predictions
   - Custom product category support
   - Real-time price optimization suggestions
+- New "Correlation Insights" feature
+  - Interactive correlation analysis between key metrics
+  - Dynamic visualization of relationships:
+    - Spending vs market conditions
+    - Income vs spending patterns
+    - Portfolio allocation vs risk factors
+    - Location impact on financial decisions
+  - Real-time data processing and visualization
+  - Caching for improved performance
+  - Responsive charts with Plotly integration
+  - Comprehensive tooltips and explanations
+  - State persistence between tab switches
+- New "X vs Y Comparison" feature
+  - Interactive metric comparison tool
+  - Dynamic visualization of relationships:
+    - Spending vs Income analysis
+    - Portfolio vs Risk metrics
+    - Savings vs Expenses tracking
+    - Asset allocation comparisons
+  - Real-time data processing
+  - Responsive scatter plots with trend lines
+  - Custom metric selection interface
+  - Detailed analysis tooltips
+  - State persistence with caching
+  - Export capabilities for comparison data
+- Streaming response support for LLM components
+  - Real-time feedback display in LLMFeedback component
+  - Improved user experience with immediate response visibility
+  - Efficient handling of large language model outputs
+  - Reduced perceived latency for users
+- Interactive location map in analysis tab
+  - Google Maps integration for visual location representation
+  - Fallback to world map when no specific location is provided
+  - Automatic city/state/country detection and display
+  - Responsive design with proper aspect ratio
+- New "Word-of-Mouth" feature
+  - Interactive social network graph visualization
+  - Network analysis and metrics:
+    - Network size and reach potential
+    - Average influence score
+    - Key connectors identification
+    - Virality scoring
+  - Strategic recommendations:
+    - Network growth tactics
+    - Influencer engagement strategies
+    - Content optimization
+    - Channel selection
+  - Real-time graph interactions
+  - Caching for improved performance
+  - Integration with GPT-4o for analysis
+  - Beautiful force-directed graph visualization
+  - Animated transitions and interactions
 
 ### Changed
 - Updated wording to reflect digital twin creation for others rather than self
@@ -85,6 +137,9 @@
 - Improved error handling in demographic data fetching
 - Reorganized analysis tab with new lifestyle components
 - Enhanced UX flow with automatic tab switching after import
+- Updated logo design with snake emoji and stylized text
+- Enhanced location insights presentation with grid layout
+- Improved error handling for location data
 
 ### Fixed
 - Resolved API endpoint issues with explicit URLs
@@ -128,6 +183,11 @@
   - Enhanced caching to store properly formatted content
   - Fixed JSON parsing of markdown code fence responses
   - Added response cleaning for OpenAI API responses
+- PDF export spending analysis now correctly displays currency values
+  - Fixed $NaN display issues in spending breakdown
+  - Improved percentage calculations
+  - Added proper currency formatting
+  - Added fallback for undefined values
 
 ## [0.1.0] - 2024-01-18
 - Initial release with basic Census API integration 

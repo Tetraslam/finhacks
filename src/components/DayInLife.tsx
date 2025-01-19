@@ -338,6 +338,35 @@ export function DayInLife({
           <div className="grid gap-4 grid-cols-2">
             <Card>
               <CardHeader>
+                <CardTitle>Location Map</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {demographics?.location ? (
+                  <div className="aspect-video w-full overflow-hidden rounded-lg border border-border">
+                    <iframe
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                      allowFullScreen
+                      referrerPolicy="no-referrer-when-downgrade"
+                      src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(
+                        demographics.location.city 
+                          ? `${demographics.location.city}, ${demographics.location.state}`
+                          : demographics.location.state || 'World'
+                      )}`}
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted flex items-center justify-center">
+                    <p className="text-muted-foreground">No location data available</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle>Frequently Visited Locations</CardTitle>
               </CardHeader>
               <CardContent>
@@ -364,7 +393,7 @@ export function DayInLife({
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="col-span-2">
               <CardHeader>
                 <CardTitle>Location Preferences</CardTitle>
               </CardHeader>
