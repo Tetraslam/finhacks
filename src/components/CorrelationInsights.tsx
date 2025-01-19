@@ -33,22 +33,26 @@ interface CorrelationData {
   insights: string[]
 }
 
+interface CacheType {
+  [key: string]: CorrelationData
+}
+
 export function CorrelationInsights({ demographics, cache }: CorrelationInsightsProps) {
   const [isLoading, setIsLoading] = React.useState(false)
   const [selectedCorrelation, setSelectedCorrelation] = React.useState<CorrelationType>("spending_vs_market")
   const [correlationData, setCorrelationData] = React.useState<CorrelationData | null>(null)
-  const [streamedResponse, setStreamedResponse] = React.useState("")
   const [partialData, setPartialData] = React.useState<string>("")
   const { toast } = useToast()
 
   // Memoize the demographics object to prevent unnecessary re-renders
   const memoizedDemographics = React.useMemo(() => demographics, [
     demographics.age,
-    demographics.occupation,
     demographics.income,
+    demographics.occupation,
     demographics.location.state,
     demographics.education,
-    demographics.maritalStatus
+    demographics.maritalStatus,
+    demographics.householdSize
   ])
 
   // Check cache and update state when component mounts or when correlation type changes
@@ -73,8 +77,6 @@ export function CorrelationInsights({ demographics, cache }: CorrelationInsights
     if (isLoading) return
 
     setIsLoading(true)
-    setStreamedResponse("")
-    setPartialData("")
     setCorrelationData(null)
     
     try {
@@ -97,7 +99,6 @@ export function CorrelationInsights({ demographics, cache }: CorrelationInsights
 
         const chunk = decoder.decode(value)
         accumulatedResponse += chunk
-        setStreamedResponse(accumulatedResponse)
         setPartialData(accumulatedResponse)
 
         try {

@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import ReactMarkdown from "react-markdown"
 import { motion } from "framer-motion"
 import dynamic from "next/dynamic"
-import { DollarSign, Tag, TrendingUp, Users, LineChart, ShoppingBag } from "lucide-react"
+import { DollarSign, Tag, TrendingUp, Users, LineChart, ShoppingBag, Plus, X } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Import Plotly dynamically to fix SSR issues
@@ -136,11 +136,12 @@ export function PriceProduct({ demographics }: PriceProductProps) {
   // Memoize the demographics object to prevent unnecessary re-renders
   const memoizedDemographics = React.useMemo(() => demographics, [
     demographics.age,
-    demographics.occupation,
     demographics.income,
+    demographics.occupation,
     demographics.location.state,
     demographics.education,
-    demographics.maritalStatus
+    demographics.maritalStatus,
+    demographics.householdSize
   ])
 
   const handleAddFeature = () => {

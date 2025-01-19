@@ -5,18 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
-import { Download, Upload, FileJson, FileText } from "lucide-react"
+import { Upload, FileJson, FileText } from "lucide-react"
 import { type Demographics, type ExportData } from "@/lib/schema"
 import { validateDemographics } from "@/lib/census"
 import { PDFDocument } from "./PDFExport"
 import { pdf } from "@react-pdf/renderer"
+import { type ValidationResult } from "@/lib/census"
 
 interface ExportImportProps {
   demographics: Demographics | null
-  insights: any // Will be replaced with proper type
-  llmFeedback: any // Will be replaced with proper type
-  lifestyleAnalysis: any // Will be replaced with proper type
-  spendingHabits: any // Will be replaced with proper type
+  insights: ValidationResult["insights"]
+  llmFeedback: ExportData["llmFeedback"]
+  lifestyleAnalysis: ExportData["lifestyleAnalysis"]
+  spendingHabits: ExportData["spendingHabits"]
   onImport: (data: ExportData) => void
 }
 

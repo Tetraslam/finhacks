@@ -71,7 +71,7 @@ export async function GET(request: Request) {
         throw new Error("Invalid data format")
       }
       return NextResponse.json(data)
-    } catch (parseError) {
+    } catch {
       console.error("Failed to parse Census API response:", responseText)
       return NextResponse.json(
         { error: "Invalid response format from Census API" },

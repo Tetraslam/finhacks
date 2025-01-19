@@ -1,5 +1,4 @@
 import { type NextRequest } from "next/server"
-import { type Demographics } from "@/lib/schema"
 import { openai } from "@/lib/openai"
 
 export async function POST(req: NextRequest) {
@@ -44,12 +43,9 @@ Keep responses concise but insightful. Use bullet points for clarity.`,
     const encoder = new TextEncoder()
     const readable = new ReadableStream({
       async start(controller) {
-        let fullResponse = ""
-        
         try {
           for await (const chunk of stream) {
             const content = chunk.choices[0]?.delta?.content || ""
-            fullResponse += content
             controller.enqueue(encoder.encode(content))
           }
           
