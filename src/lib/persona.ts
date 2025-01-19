@@ -44,11 +44,24 @@ const LIFESTYLE_PATTERNS = {
     }
   },
   education: {
-    'Less than High School': ['practical-skills', 'hands-on-learning'],
-    'High School': ['traditional-values', 'practical-minded'],
-    'Some College': ['skill-developing', 'career-transitioning'],
-    'Bachelor\'s Degree': ['professionally-oriented', 'career-focused'],
-    'Master\'s Degree': ['academically-inclined', 'specialized-expertise']
+    'Less than High School': {
+      traits: ['practical-skills', 'hands-on-learning', 'value-oriented']
+    },
+    'High School': {
+      traits: ['traditional-values', 'practical-minded', 'stability-focused']
+    },
+    'Some College': {
+      traits: ['skill-developing', 'career-transitioning', 'growth-oriented']
+    },
+    'Bachelor\'s Degree': {
+      traits: ['professionally-oriented', 'career-focused', 'knowledge-seeking']
+    },
+    'Master\'s Degree': {
+      traits: ['academically-inclined', 'specialized-expertise', 'research-oriented']
+    },
+    'Doctoral Degree': {
+      traits: ['research-focused', 'highly-specialized', 'innovation-driven']
+    }
   }
 }
 
@@ -155,7 +168,7 @@ export function generatePersona(demographics: Demographics, censusData: CensusDe
   const lifestyle = [
     ...LIFESTYLE_PATTERNS.age[ageCategory].traits,
     ...LIFESTYLE_PATTERNS.income[incomeCategory].traits,
-    ...LIFESTYLE_PATTERNS.education[demographics.education]
+    ...LIFESTYLE_PATTERNS.education[demographics.education].traits
   ]
 
   const interests = []

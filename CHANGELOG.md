@@ -110,6 +110,24 @@
   - Improved error messages for debugging
   - Added descriptive filenames for exported PDFs
   - Fixed DataView bounds error
+- Enhanced persona generation system
+  - Added structured education traits for all education levels
+  - Fixed spreading of education traits in persona generation
+  - Added new traits for better demographic profiling
+  - Improved trait categorization for education levels
+  - Added support for Doctoral Degree education level
+- LLM Component Improvements
+  - Fixed string conversion for markdown content
+  - Added proper type checking for LLM responses
+  - Enhanced error handling for malformed responses
+  - Improved debug logging for API responses
+  - Maintained gpt-4o model compatibility
+  - Added safeguards against object-to-string conversion errors
+  - Added smart parsing to handle different JSON response structures
+  - Improved markdown content extraction from nested objects
+  - Enhanced caching to store properly formatted content
+  - Fixed JSON parsing of markdown code fence responses
+  - Added response cleaning for OpenAI API responses
 
 ## [0.1.0] - 2024-01-18
 - Initial release with basic Census API integration 

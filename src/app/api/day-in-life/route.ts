@@ -1,81 +1,117 @@
-import { type NextRequest } from "next/server"
 import { type Demographics } from "@/lib/schema"
-import { openai } from "@/lib/openai"
+import { NextResponse } from "next/server"
+import OpenAI from "openai"
 
-export async function POST(req: NextRequest) {
+const openai = new OpenAI({
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+})
+
+const SYSTEM_PROMPT = `You are an expert analyst generating a detailed lifestyle analysis based on demographic data. 
+Generate a comprehensive analysis including:
+1. A markdown-formatted daily schedule
+2. Marketing insights (shopping habits, brand preferences, price points, media consumption, decision factors)
+3. Financial insights (daily spending patterns, payment methods, financial goals, investment style, risk tolerance)
+4. Location insights (frequented locations, commute patterns, neighborhood preferences)
+
+Format the response as a JSON object with these exact keys:
+{
+  "schedule": "markdown string",
+  "marketingInsights": {
+    "shoppingHabits": string[],
+    "brandPreferences": string[],
+    "pricePoints": { category: string, range: string }[],
+    "mediaConsumption": string[],
+    "decisionFactors": string[]
+  },
+  "financialInsights": {
+    "dailySpending": { category: string, amount: number }[],
+    "paymentMethods": string[],
+    "financialGoals": string[],
+    "investmentStyle": string,
+    "riskTolerance": string
+  },
+  "locationInsights": {
+    "frequentedLocations": { type: string, examples: string[] }[],
+    "commutePatterns": string[],
+    "neighborhoodPreferences": string[]
+  }
+}`
+
+function cleanJsonResponse(content: string): string {
+  // Remove markdown code fences if present
+  const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/)
+  if (jsonMatch) {
+    return jsonMatch[1]
+  }
+  return content
+}
+
+export async function POST(request: Request) {
   try {
-    const { demographics } = await req.json()
+    const body = await request.json()
 
-    if (!demographics) {
-      return new Response(
-        JSON.stringify({ error: "Missing demographics data" }),
-        { status: 400 }
-      )
+    if (!body || typeof body !== 'object') {
+      throw new Error("Missing request body")
     }
+
+    const demographics = body as Demographics
+
+    if (!demographics.age || !demographics.income || !demographics.location || !demographics.education || !demographics.occupation) {
+      throw new Error("Missing required demographic fields")
+    }
+
+    console.log("Generating insights for demographics:", demographics)
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4-turbo-preview",
       messages: [
         {
           role: "system",
-          content: `You are an expert analyst providing detailed lifestyle and behavioral insights for marketers, financial institutions, and urban planners. Generate a comprehensive analysis of a person's daily life and habits based on their demographic data.
-
-Your response should be a JSON object with the following structure:
-{
-  "schedule": "A markdown-formatted daily schedule with timestamps and activities",
-  "marketingInsights": {
-    "shoppingHabits": ["Array of detailed shopping behaviors"],
-    "brandPreferences": ["Array of likely brand preferences and loyalty factors"],
-    "pricePoints": [{"category": "Category name", "range": "Price range they're willing to pay"}],
-    "mediaConsumption": ["Array of media consumption habits"],
-    "decisionFactors": ["Array of key factors in purchase decisions"]
-  },
-  "financialInsights": {
-    "dailySpending": [{"category": "Spending category", "amount": number}],
-    "paymentMethods": ["Preferred payment methods"],
-    "financialGoals": ["Key financial objectives"],
-    "investmentStyle": "Investment approach description",
-    "riskTolerance": "Risk tolerance level"
-  },
-  "locationInsights": {
-    "frequentedLocations": [{"type": "Location type", "examples": ["Specific examples"]}],
-    "commutePatterns": ["Transportation and timing preferences"],
-    "neighborhoodPreferences": ["Housing and area preferences"]
-  }
-}
-
-Make insights specific, actionable, and based on demographic patterns. Include realistic price points, brands, and locations relevant to their income level and location.`,
+          content: SYSTEM_PROMPT
         },
         {
           role: "user",
-          content: `Generate insights for someone with these demographics:
-Age: ${demographics.age}
-Income: $${demographics.income.toLocaleString()}
-Location: ${demographics.location.city}, ${demographics.location.state}
-Education: ${demographics.education}
-Occupation: ${demographics.occupation}
-Household Size: ${demographics.householdSize}
-Marital Status: ${demographics.maritalStatus}`,
-        },
+          content: `Generate a lifestyle analysis for a ${demographics.age} year old ${demographics.occupation} in ${demographics.location.state}${demographics.location.city ? `, ${demographics.location.city}` : ""} with an income of $${demographics.income} and ${demographics.education} education.${demographics.maritalStatus ? ` They are ${demographics.maritalStatus}.` : ""}`
+        }
       ],
-      temperature: 0.7,
-      max_tokens: 2000,
-      response_format: { type: "json_object" },
+      response_format: { type: "json_object" }
     })
 
-    const insights = JSON.parse(completion.choices[0].message.content)
+    console.log("Raw OpenAI response:", completion)
+    
+    const content = completion.choices[0].message.content
+    console.log("Response content:", content)
 
-    if (!insights) {
-      throw new Error("No insights generated")
+    if (!content) {
+      throw new Error("Empty response from OpenAI")
     }
 
-    return new Response(JSON.stringify({ insights }), {
-      headers: { "Content-Type": "application/json" },
-    })
+    // Clean the response before parsing
+    const cleanedContent = cleanJsonResponse(content)
+    console.log("Cleaned content:", cleanedContent)
+
+    let insights
+    try {
+      insights = JSON.parse(cleanedContent)
+      console.log("Parsed insights:", insights)
+    } catch (e) {
+      console.error("Failed to parse insights:", e)
+      throw new Error("Invalid response format")
+    }
+
+    // Ensure schedule is a string
+    if (typeof insights.schedule !== "string") {
+      console.log("Schedule is not a string, converting:", insights.schedule)
+      insights.schedule = JSON.stringify(insights.schedule)
+    }
+
+    console.log("Final insights with string schedule:", insights)
+
+    return NextResponse.json(insights)
   } catch (error) {
-    console.error("Failed to generate insights:", error)
-    return new Response(
-      JSON.stringify({ error: "Failed to generate insights" }),
+    console.error("Error generating lifestyle insights:", error)
+    return NextResponse.json(
+      { error: "Failed to generate lifestyle insights" },
       { status: 500 }
     )
   }

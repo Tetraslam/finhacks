@@ -17,6 +17,7 @@ const Plot = dynamic(() => import("react-plotly.js"), { ssr: false })
 interface DayInLifeProps {
   demographics: Demographics
   onAnalysisGenerated?: (analysis: ExportData["lifestyleAnalysis"]) => void
+  cache: {[key: string]: LifestyleInsights}
 }
 
 interface LifestyleInsights {
@@ -45,73 +46,125 @@ interface LifestyleInsights {
 export function DayInLife({
   demographics,
   onAnalysisGenerated,
+  cache
 }: DayInLifeProps) {
   const [isLoading, setIsLoading] = React.useState(false)
+  const [insights, setInsights] = React.useState<LifestyleInsights | null>(null)
+  const [error, setError] = React.useState<string | null>(null)
   const { toast } = useToast()
-  const fetchedRef = React.useRef(false)
 
-  const [insights, setInsights] = React.useState<LifestyleInsights | null>(() => {
-    if (typeof window === "undefined") return null
-    const cached = localStorage.getItem("day_in_life_insights")
-    if (!cached) return null
-    try {
-      const { demographics: cachedDemographics, insights: cachedInsights } = JSON.parse(cached)
-      return JSON.stringify(demographics) === JSON.stringify(cachedDemographics) ? cachedInsights : null
-    } catch {
-      return null
+  const defaultInsights: LifestyleInsights = {
+    schedule: "",
+    marketingInsights: {
+      shoppingHabits: [],
+      brandPreferences: [],
+      pricePoints: [],
+      mediaConsumption: [],
+      decisionFactors: []
+    },
+    financialInsights: {
+      dailySpending: [],
+      paymentMethods: [],
+      financialGoals: [],
+      investmentStyle: "",
+      riskTolerance: ""
+    },
+    locationInsights: {
+      frequentedLocations: [],
+      commutePatterns: [],
+      neighborhoodPreferences: []
     }
-  })
+  }
+
+  const generateInsights = React.useCallback(async () => {
+    if (!demographics) return
+
+    // Create a cache key based on demographics
+    const cacheKey = JSON.stringify(demographics)
+
+    // Check if we have cached results
+    if (cache[cacheKey]) {
+      setInsights(cache[cacheKey])
+      if (onAnalysisGenerated) {
+        onAnalysisGenerated({
+          schedule: cache[cacheKey].schedule,
+          marketingInsights: cache[cacheKey].marketingInsights,
+          financialInsights: cache[cacheKey].financialInsights,
+          locationInsights: cache[cacheKey].locationInsights
+        })
+      }
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/day-in-life', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(demographics),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate insights')
+      }
+
+      const data = await response.json()
+      
+      // Cache the results
+      cache[cacheKey] = data
+
+      setInsights(data)
+      if (onAnalysisGenerated) {
+        onAnalysisGenerated({
+          schedule: data.schedule,
+          marketingInsights: data.marketingInsights,
+          financialInsights: data.financialInsights,
+          locationInsights: data.locationInsights
+        })
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred')
+      toast({
+        title: "Error",
+        description: "Failed to generate lifestyle insights. Please try again.",
+        variant: "destructive"
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }, [demographics, onAnalysisGenerated, toast, cache])
 
   React.useEffect(() => {
-    const fetchInsights = async () => {
-      if (!demographics || fetchedRef.current) return
-      if (insights) return // Don't fetch if we have cached insights
-
-      try {
-        setIsLoading(true)
-        fetchedRef.current = true
-        const response = await fetch("/api/day-in-life", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ demographics }),
-        })
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch lifestyle insights")
-        }
-
-        const data = await response.json()
-        setInsights(data)
+    if (demographics) {
+      const cacheKey = JSON.stringify(demographics)
+      // Only make the API call if we don't have cached data
+      if (!cache[cacheKey]) {
+        generateInsights()
+      } else {
+        // Use cached data if available
+        setInsights(cache[cacheKey])
         if (onAnalysisGenerated) {
-          onAnalysisGenerated(data)
+          onAnalysisGenerated({
+            schedule: cache[cacheKey].schedule,
+            marketingInsights: cache[cacheKey].marketingInsights,
+            financialInsights: cache[cacheKey].financialInsights,
+            locationInsights: cache[cacheKey].locationInsights
+          })
         }
-        localStorage.setItem("day_in_life_insights", JSON.stringify({ demographics, insights: data }))
-      } catch (error) {
-        console.error("Failed to fetch lifestyle insights:", error)
-        toast({
-          title: "Error",
-          description: "Failed to generate lifestyle insights. Please try again.",
-          variant: "destructive",
-        })
-        fetchedRef.current = false
-      } finally {
-        setIsLoading(false)
       }
     }
+  }, [demographics, generateInsights])
 
-    fetchInsights()
-
-    return () => {
-      fetchedRef.current = false
-    }
-  }, [demographics, insights, toast, onAnalysisGenerated])
+  const safeInsights = React.useMemo(() => ({ ...defaultInsights, ...insights }), [insights])
 
   const renderSpendingChart = () => {
-    if (!insights?.financialInsights.dailySpending.length) return null
+    if (!safeInsights?.financialInsights?.dailySpending?.length) return null
 
-    const data = insights.financialInsights.dailySpending
+    const data = safeInsights.financialInsights.dailySpending
     return (
       <Plot
         data={[
@@ -176,7 +229,7 @@ export function DayInLife({
             </CardHeader>
             <CardContent>
               <div className="prose prose-sm max-w-none dark:prose-invert">
-                <ReactMarkdown>{insights.schedule}</ReactMarkdown>
+                <ReactMarkdown>{safeInsights.schedule}</ReactMarkdown>
               </div>
             </CardContent>
           </Card>
@@ -193,7 +246,7 @@ export function DayInLife({
               </CardHeader>
               <CardContent>
                 <ul className="list-disc pl-4 space-y-2">
-                  {insights.marketingInsights.shoppingHabits.map((habit, i) => (
+                  {safeInsights.marketingInsights.shoppingHabits.map((habit, i) => (
                     <motion.li
                       key={i}
                       initial={{ opacity: 0, x: -20 }}
@@ -216,7 +269,7 @@ export function DayInLife({
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {insights.marketingInsights.pricePoints.map((point, i) => (
+                  {safeInsights.marketingInsights.pricePoints.map((point, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 20 }}
@@ -253,16 +306,16 @@ export function DayInLife({
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-medium mb-2">Investment Style</h4>
-                    <p className="text-sm text-muted-foreground">{insights.financialInsights.investmentStyle}</p>
+                    <p className="text-sm text-muted-foreground">{safeInsights.financialInsights.investmentStyle}</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Risk Tolerance</h4>
-                    <p className="text-sm text-muted-foreground">{insights.financialInsights.riskTolerance}</p>
+                    <p className="text-sm text-muted-foreground">{safeInsights.financialInsights.riskTolerance}</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Financial Goals</h4>
                     <ul className="list-disc pl-4 space-y-1">
-                      {insights.financialInsights.financialGoals.map((goal, i) => (
+                      {safeInsights.financialInsights.financialGoals.map((goal, i) => (
                         <motion.li
                           key={i}
                           initial={{ opacity: 0, x: -20 }}
@@ -289,7 +342,7 @@ export function DayInLife({
               </CardHeader>
               <CardContent>
                 <div className="space-y-6">
-                  {insights.locationInsights.frequentedLocations.map((location, i) => (
+                  {safeInsights.locationInsights.frequentedLocations.map((location, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 20 }}
@@ -320,7 +373,7 @@ export function DayInLife({
                   <div>
                     <h4 className="font-medium mb-2">Commute Patterns</h4>
                     <ul className="list-disc pl-4 space-y-1">
-                      {insights.locationInsights.commutePatterns.map((pattern, i) => (
+                      {safeInsights.locationInsights.commutePatterns.map((pattern, i) => (
                         <motion.li
                           key={i}
                           initial={{ opacity: 0, x: -20 }}
@@ -336,7 +389,7 @@ export function DayInLife({
                   <div>
                     <h4 className="font-medium mb-2">Neighborhood Preferences</h4>
                     <ul className="list-disc pl-4 space-y-1">
-                      {insights.locationInsights.neighborhoodPreferences.map((pref, i) => (
+                      {safeInsights.locationInsights.neighborhoodPreferences.map((pref, i) => (
                         <motion.li
                           key={i}
                           initial={{ opacity: 0, x: -20 }}

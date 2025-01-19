@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast"
 import { generatePersona } from "@/lib/persona"
 import { WhatIfScenarios } from "@/components/WhatIfScenarios"
 import { PriceProduct } from "@/components/PriceProduct"
+import React from "react"
 
 export default function Home() {
   const [demographics, setDemographics] = useState<Demographics | null>(null)
@@ -30,6 +31,7 @@ export default function Home() {
   const [spendingHabits, setSpendingHabits] = useState<ExportData["spendingHabits"] | null>(null)
   const [scenarioDemographics, setScenarioDemographics] = useState<Demographics | null>(null)
   const [scenarioInsights, setScenarioInsights] = useState<ValidationResult["insights"] | null>(null)
+  const lifestyleCache = React.useRef<{[key: string]: any}>({})
 
   const handleDemographicsGenerated = async (data: Demographics) => {
     setDemographics(data)
@@ -202,11 +204,12 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {demographics && activeTab === "analyze" ? (
+                {demographics ? (
                   <div className="space-y-6">
                     <DayInLife 
                       demographics={demographics} 
                       onAnalysisGenerated={setLifestyleAnalysis}
+                      cache={lifestyleCache.current}
                     />
                   </div>
                 ) : (
@@ -218,25 +221,19 @@ export default function Home() {
             </Card>
           </TabsContent>
           <TabsContent value="price" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Price Analysis</CardTitle>
-                <CardDescription>
-                  Analyze optimal pricing for products targeting this demographic.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {demographics && activeTab === "price" ? (
-                  <div className="space-y-6">
-                    <PriceProduct demographics={demographics} />
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground">
-                    Create a digital twin first to analyze product pricing for their demographic profile.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              {demographics ? (
+                <PriceProduct demographics={demographics} />
+              ) : (
+                <Card>
+                  <CardContent className="py-4">
+                    <p className="text-muted-foreground">
+                      Create a digital twin first to analyze product pricing.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
           <TabsContent value="scenarios" className="space-y-4">
             <div className="grid gap-4 grid-cols-2">

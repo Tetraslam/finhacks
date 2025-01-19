@@ -1,15 +1,6 @@
 import { NextResponse } from "next/server"
 import { type Demographics } from "@/lib/schema"
-import OpenAI from "openai"
-
-if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-  throw new Error("NEXT_PUBLIC_OPENAI_API_KEY is not set")
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-})
+import { openai } from "@/lib/openai"
 
 const SYSTEM_PROMPT = `You are an expert pricing analyst with deep knowledge of market dynamics, consumer behavior, and demographic analysis. Your task is to analyze product pricing based on demographic data and product details.
 
@@ -77,14 +68,14 @@ Category: ${product.category}
 Description: ${product.description}
 Target Price: $${product.targetPrice}
 Features: ${product.features.join(", ")}
-Competitor Prices: ${product.competitorPrices.map(p => `$${p}`).join(", ")}
+Competitor Prices: ${product.competitorPrices.map((p: number) => `$${p}`).join(", ")}
 
 Target Demographic:
 - Age: ${demographics.age}
 - Income: $${demographics.income}
 - Occupation: ${demographics.occupation}
 - Education: ${demographics.education}
-- Location: ${demographics.location}
+- Location: ${demographics.location.city}, ${demographics.location.state}
 - Household Size: ${demographics.householdSize}
 - Marital Status: ${demographics.maritalStatus}
 

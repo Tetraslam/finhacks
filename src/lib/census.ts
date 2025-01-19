@@ -344,6 +344,19 @@ export async function validateDemographics(demographics: Demographics): Promise<
       }
     }
 
+    // Helper function to normalize marital status
+    const normalizeMaritalStatus = (status: string): keyof CensusDemographicData["maritalStatus"] => {
+      const normalized = status.toLowerCase()
+      switch (normalized) {
+        case "single": return "single"
+        case "married": return "married"
+        case "divorced": return "divorced"
+        case "widowed": return "widowed"
+        case "separated": return "separated"
+        default: return "single"
+      }
+    }
+
     // Calculate percentiles and additional metrics
     const incomeDiff = ((demographics.income - censusData.medianIncome) / censusData.medianIncome) * 100
     const monthlyIncome = demographics.income / 12
@@ -359,7 +372,11 @@ export async function validateDemographics(demographics: Demographics): Promise<
     // Education level comparison
     const eduLevel = getEducationLevel(demographics.education)
     const eduPercentage = censusData.educationLevels[eduLevel]
-    
+
+    // Safe marital status comparison
+    const maritalStatus = normalizeMaritalStatus(demographics.maritalStatus)
+    const maritalStatusPercentage = censusData.maritalStatus[maritalStatus] || 0
+
     return {
       isValid: true,
       insights: {
@@ -368,7 +385,7 @@ export async function validateDemographics(demographics: Demographics): Promise<
         incomeComparison: `Income is ${demographics.income > censusData.medianIncome ? "above" : "below"} the median income ($${censusData.medianIncome.toLocaleString()}) for this area`,
         educationComparison: `${eduPercentage.toFixed(1)}% of people in this area have a similar education level`,
         householdComparison: `Average household size in this area is ${censusData.householdSize} people`,
-        maritalStatusComparison: `${(censusData.maritalStatus[demographics.maritalStatus.toLowerCase() as keyof CensusDemographicData["maritalStatus"]]).toFixed(1)}% of people in this area have the same marital status`,
+        maritalStatusComparison: `${maritalStatusPercentage.toFixed(1)}% of people in this area have the same marital status`,
         
         // Detailed Income Analysis
         incomePercentile: `The income is ${Math.abs(incomeDiff).toFixed(1)}% ${incomeDiff > 0 ? "above" : "below"} the median for this area`,

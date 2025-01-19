@@ -75,6 +75,36 @@ const PRODUCT_CATEGORIES = [
   "Professional Services"
 ]
 
+const defaultInsights: PricingInsights = {
+  recommendedPrice: {
+    min: 0,
+    max: 0,
+    optimal: 0
+  },
+  marketAnalysis: {
+    competitiveLandscape: "",
+    marketTrends: "",
+    seasonalFactors: ""
+  },
+  demographicFit: {
+    spendingCapacity: "",
+    priceElasticity: "",
+    valuePerception: "",
+    purchaseLikelihood: ""
+  },
+  visualizations: {
+    priceDistribution: {
+      prices: [],
+      probabilities: []
+    },
+    sensitivityCurve: {
+      prices: [],
+      demand: []
+    }
+  },
+  recommendations: []
+}
+
 export function PriceProduct({ demographics }: PriceProductProps) {
   const [productDetails, setProductDetails] = React.useState<ProductDetails>({
     name: "",
@@ -178,9 +208,9 @@ export function PriceProduct({ demographics }: PriceProductProps) {
   }
 
   const renderPriceDistribution = () => {
-    if (!insights?.visualizations.priceDistribution) return null
+    if (!safeInsights?.visualizations?.priceDistribution?.prices?.length) return null
 
-    const { prices, probabilities } = insights.visualizations.priceDistribution
+    const { prices, probabilities } = safeInsights.visualizations.priceDistribution
     return (
       <Plot
         data={[
@@ -208,9 +238,9 @@ export function PriceProduct({ demographics }: PriceProductProps) {
   }
 
   const renderSensitivityCurve = () => {
-    if (!insights?.visualizations.sensitivityCurve) return null
+    if (!safeInsights?.visualizations?.sensitivityCurve?.prices?.length) return null
 
-    const { prices, demand } = insights.visualizations.sensitivityCurve
+    const { prices, demand } = safeInsights.visualizations.sensitivityCurve
     return (
       <Plot
         data={[
@@ -238,6 +268,8 @@ export function PriceProduct({ demographics }: PriceProductProps) {
       />
     )
   }
+
+  const safeInsights = { ...defaultInsights, ...insights }
 
   return (
     <div className="space-y-6">
@@ -412,15 +444,15 @@ export function PriceProduct({ demographics }: PriceProductProps) {
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
                   <div className="text-sm text-muted-foreground">Minimum</div>
-                  <div className="text-2xl font-bold">${insights.recommendedPrice.min.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">${safeInsights.recommendedPrice.min.toFixed(2)}</div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Optimal</div>
-                  <div className="text-2xl font-bold text-primary">${insights.recommendedPrice.optimal.toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-primary">${safeInsights.recommendedPrice.optimal.toFixed(2)}</div>
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Maximum</div>
-                  <div className="text-2xl font-bold">${insights.recommendedPrice.max.toFixed(2)}</div>
+                  <div className="text-2xl font-bold">${safeInsights.recommendedPrice.max.toFixed(2)}</div>
                 </div>
               </div>
             </CardContent>
@@ -454,15 +486,15 @@ export function PriceProduct({ demographics }: PriceProductProps) {
                 <CardContent className="space-y-4">
                   <div>
                     <h4 className="font-medium mb-2">Competitive Landscape</h4>
-                    <p className="text-sm text-muted-foreground">{insights.marketAnalysis.competitiveLandscape}</p>
+                    <p className="text-sm text-muted-foreground">{insights?.marketAnalysis?.competitiveLandscape}</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Market Trends</h4>
-                    <p className="text-sm text-muted-foreground">{insights.marketAnalysis.marketTrends}</p>
+                    <p className="text-sm text-muted-foreground">{insights?.marketAnalysis?.marketTrends}</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Seasonal Factors</h4>
-                    <p className="text-sm text-muted-foreground">{insights.marketAnalysis.seasonalFactors}</p>
+                    <p className="text-sm text-muted-foreground">{insights?.marketAnalysis?.seasonalFactors}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -476,19 +508,19 @@ export function PriceProduct({ demographics }: PriceProductProps) {
                 <CardContent className="space-y-4">
                   <div>
                     <h4 className="font-medium mb-2">Spending Capacity</h4>
-                    <p className="text-sm text-muted-foreground">{insights.demographicFit.spendingCapacity}</p>
+                    <p className="text-sm text-muted-foreground">{insights?.demographicFit?.spendingCapacity}</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Price Elasticity</h4>
-                    <p className="text-sm text-muted-foreground">{insights.demographicFit.priceElasticity}</p>
+                    <p className="text-sm text-muted-foreground">{insights?.demographicFit?.priceElasticity}</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Value Perception</h4>
-                    <p className="text-sm text-muted-foreground">{insights.demographicFit.valuePerception}</p>
+                    <p className="text-sm text-muted-foreground">{insights?.demographicFit?.valuePerception}</p>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Purchase Likelihood</h4>
-                    <p className="text-sm text-muted-foreground">{insights.demographicFit.purchaseLikelihood}</p>
+                    <p className="text-sm text-muted-foreground">{insights?.demographicFit?.purchaseLikelihood}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -523,7 +555,7 @@ export function PriceProduct({ demographics }: PriceProductProps) {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {insights.recommendations.map((recommendation, index) => (
+                    {insights?.recommendations?.map((recommendation, index) => (
                       <motion.li
                         key={index}
                         initial={{ opacity: 0, x: -20 }}
