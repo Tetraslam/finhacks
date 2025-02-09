@@ -45,6 +45,7 @@ export function DemographicForm({
       occupation: "",
       householdSize: 1,
       maritalStatus: "Single",
+      ...initialData
     },
   })
 

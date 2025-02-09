@@ -143,24 +143,17 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <NaturalLanguageInput 
-                  onDemographicsGenerated={handleDemographicsGenerated}
-                  demographics={demographics}
-                  setDemographics={setDemographics}
-                  onPromptChange={handlePromptChange}
-                />
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Or fill out the form manually
-                    </span>
-                  </div>
+                <div className="space-y-4">
+                  <NaturalLanguageInput
+                    onDemographicsGenerated={handleDemographicsGenerated}
+                    demographics={demographics}
+                    setDemographics={setDemographics}
+                    onPromptChange={handlePromptChange}
+                    isLoading={submitted}
+                  />
                 </div>
-                <DemographicForm 
-                  initialData={demographics}
+                <DemographicForm
+                  initialData={demographics || undefined}
                   onSubmit={handleDemographicsGenerated}
                 />
                 {demographics && (
