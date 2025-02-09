@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { Card } from "@/components/ui/card"
-import { type Demographics } from "@/lib/schema"
+import { type Demographics, type ExportData } from "@/lib/schema"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useToast } from "@/hooks/use-toast"
 import ReactMarkdown from "react-markdown"
