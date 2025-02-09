@@ -188,6 +188,10 @@
   - Improved percentage calculations
   - Added proper currency formatting
   - Added fallback for undefined values
+- Fixed spending habits type mismatch
+  - Added proper amount calculation based on income percentage
+  - Ensured consistent data structure between persona and state
+  - Improved type safety in spending habits transformation
 
 ## [0.1.0] - 2024-01-18
 - Initial release with basic Census API integration 

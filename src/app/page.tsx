@@ -64,7 +64,15 @@ export default function Home() {
           separated: 5,
         }
       })
-      setSpendingHabits(persona.spendingHabits)
+      
+      // Transform spending habits to include amount field
+      const transformedSpendingHabits = persona.spendingHabits.map(habit => ({
+        category: habit.category,
+        amount: (habit.percentage / 100) * data.income / 12, // Monthly amount based on income
+        percentage: habit.percentage
+      }))
+      
+      setSpendingHabits(transformedSpendingHabits)
     } catch (error) {
       console.error("Failed to validate demographics:", error)
       toast({
