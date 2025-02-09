@@ -292,7 +292,7 @@ export function PDFDocument({ data }: PDFExportProps) {
 
                 <View style={styles.subsection}>
                   <Text style={styles.subheader}>Price Points</Text>
-                  {data.lifestyleAnalysis.marketingInsights.pricePoints.map((point, index) => (
+                  {data.lifestyleAnalysis.marketingInsights.pricePoints.map((point: { category: string; range: string }, index: number) => (
                     <Text key={index} style={styles.insights}>{point.category}: {point.range}</Text>
                   ))}
                 </View>
@@ -310,14 +310,14 @@ export function PDFDocument({ data }: PDFExportProps) {
 
                 <View style={styles.subsection}>
                   <Text style={styles.subheader}>Financial Goals</Text>
-                  {data.lifestyleAnalysis.financialInsights.financialGoals.map((goal, index) => (
+                  {data.lifestyleAnalysis.financialInsights.financialGoals.map((goal: string, index: number) => (
                     <Text key={index} style={styles.insights}>{goal}</Text>
                   ))}
                 </View>
 
                 <View style={styles.subsection}>
                   <Text style={styles.subheader}>Daily Spending</Text>
-                  {data.lifestyleAnalysis.financialInsights.dailySpending.map((item, index) => (
+                  {data.lifestyleAnalysis.financialInsights.dailySpending.map((item: { category: string; amount: number }, index: number) => (
                     <View key={index} style={styles.row}>
                       <Text style={styles.label}>{item.category}:</Text>
                       <Text style={styles.value}>{formatCurrency(item.amount)}</Text>
@@ -332,10 +332,10 @@ export function PDFDocument({ data }: PDFExportProps) {
 
                 <View style={styles.subsection}>
                   <Text style={styles.subheader}>Frequented Locations</Text>
-                  {data.lifestyleAnalysis.locationInsights.frequentedLocations.map((loc, index) => (
+                  {data.lifestyleAnalysis.locationInsights.frequentedLocations.map((loc: { type: string; examples: string[] }, index: number) => (
                     <View key={index} style={styles.subsection}>
                       <Text style={styles.insights}>{loc.type}:</Text>
-                      {loc.examples.map((example, i) => (
+                      {loc.examples.map((example: string, i: number) => (
                         <Text key={i} style={[styles.insights, { marginLeft: 10 }]}>• {example}</Text>
                       ))}
                     </View>
@@ -344,14 +344,14 @@ export function PDFDocument({ data }: PDFExportProps) {
 
                 <View style={styles.subsection}>
                   <Text style={styles.subheader}>Commute Patterns</Text>
-                  {data.lifestyleAnalysis.locationInsights.commutePatterns.map((pattern, index) => (
+                  {data.lifestyleAnalysis.locationInsights.commutePatterns.map((pattern: string, index: number) => (
                     <Text key={index} style={styles.insights}>• {pattern}</Text>
                   ))}
                 </View>
 
                 <View style={styles.subsection}>
                   <Text style={styles.subheader}>Neighborhood Preferences</Text>
-                  {data.lifestyleAnalysis.locationInsights.neighborhoodPreferences.map((pref, index) => (
+                  {data.lifestyleAnalysis.locationInsights.neighborhoodPreferences.map((pref: string, index: number) => (
                     <Text key={index} style={styles.insights}>• {pref}</Text>
                   ))}
                 </View>
