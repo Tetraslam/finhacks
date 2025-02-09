@@ -361,14 +361,16 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ExportImport 
-                  demographics={demographics}
-                  insights={insights}
-                  llmFeedback={llmFeedback}
-                  lifestyleAnalysis={lifestyleAnalysis}
-                  spendingHabits={spendingHabits}
-                  onImport={handleImport}
-                />
+                {demographics && insights && llmFeedback && lifestyleAnalysis && spendingHabits && (
+                  <ExportImport
+                    demographics={demographics}
+                    insights={insights}
+                    llmFeedback={llmFeedback}
+                    lifestyleAnalysis={lifestyleAnalysis}
+                    spendingHabits={spendingHabits}
+                    onImport={handleImport}
+                  />
+                )}
               </CardContent>
             </Card>
           </TabsContent>
