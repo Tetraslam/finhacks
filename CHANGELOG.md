@@ -209,4 +209,14 @@
   - Maintained component functionality
 
 ## [0.1.0] - 2024-01-18
-- Initial release with basic Census API integration 
+- Initial release with basic Census API integration
+
+### Fixed
+- Fixed PDF export type errors by properly using Document and Page components
+- Improved PDF generation with renderToFile for better type safety
+- Enhanced PDF component structure and styling
+- Fixed type safety in ExportImport component
+- Added proper type assertions for filtered insights
+- Improved array type narrowing
+- Enhanced type safety in section rendering
+- Maintained component functionality 

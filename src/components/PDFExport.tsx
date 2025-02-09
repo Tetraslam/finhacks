@@ -20,16 +20,16 @@ Font.register({
 // Create styles
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
-    fontFamily: "Helvetica",
+    flexDirection: 'column',
+    backgroundColor: '#ffffff',
+    padding: 30
   },
   header: {
     marginBottom: 20,
   },
   title: {
     fontSize: 24,
-    marginBottom: 8,
-    color: "#1a1a1a",
+    marginBottom: 10
   },
   subtitle: {
     fontSize: 14,
@@ -37,7 +37,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   section: {
-    marginBottom: 25,
+    margin: 10,
+    padding: 10,
+    flexGrow: 1
   },
   sectionTitle: {
     fontSize: 16,
@@ -94,9 +96,9 @@ interface PDFExportProps {
 
 export function PDFDocument({ data }: PDFExportProps) {
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
     }).format(amount)
   }
 
@@ -210,157 +212,160 @@ export function PDFDocument({ data }: PDFExportProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Digital Twin Analysis Report</Text>
-          <Text style={styles.subtitle}>Generated on {formatDate(data.exportDate)}</Text>
-        </View>
-
-        {/* Demographics Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Demographics</Text>
-          <View style={styles.row}>
-            <Text style={styles.label}>Age:</Text>
-            <Text style={styles.value}>{data.demographics.age} years</Text>
+          <Text style={styles.title}>Digital Twin Export</Text>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Digital Twin Analysis Report</Text>
+            <Text style={styles.subtitle}>Generated on {formatDate(data.exportDate)}</Text>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Income:</Text>
-            <Text style={styles.value}>{formatCurrency(data.demographics.income)}/year</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Location:</Text>
-            <Text style={styles.value}>
-              {data.demographics.location.city}, {data.demographics.location.state} {data.demographics.location.zipCode}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Education:</Text>
-            <Text style={styles.value}>{data.demographics.education}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Occupation:</Text>
-            <Text style={styles.value}>{data.demographics.occupation}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Household Size:</Text>
-            <Text style={styles.value}>{data.demographics.householdSize}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.label}>Marital Status:</Text>
-            <Text style={styles.value}>{data.demographics.maritalStatus}</Text>
-          </View>
-        </View>
 
-        {/* Render structured census insights */}
-        {renderCensusInsights()}
+          {/* Demographics Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Demographics</Text>
+            <View style={styles.row}>
+              <Text style={styles.label}>Age:</Text>
+              <Text style={styles.value}>{data.demographics.age} years</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Income:</Text>
+              <Text style={styles.value}>{formatCurrency(data.demographics.income)}/year</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Location:</Text>
+              <Text style={styles.value}>
+                {data.demographics.location.city}, {data.demographics.location.state} {data.demographics.location.zipCode}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Education:</Text>
+              <Text style={styles.value}>{data.demographics.education}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Occupation:</Text>
+              <Text style={styles.value}>{data.demographics.occupation}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Household Size:</Text>
+              <Text style={styles.value}>{data.demographics.householdSize}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Marital Status:</Text>
+              <Text style={styles.value}>{data.demographics.maritalStatus}</Text>
+            </View>
+          </View>
 
-        {data.llmFeedback && (
-          <>
-            {renderSection("Financial Profile", data.llmFeedback.financialProfile)}
-            {renderSection("Risk Factors", data.llmFeedback.riskFactors)}
-            {renderSection("Opportunities", data.llmFeedback.opportunities)}
-            {renderSection("Behavioral Insights", data.llmFeedback.behavioralInsights)}
-            {renderSection("Recommendations", data.llmFeedback.recommendations)}
-          </>
-        )}
+          {/* Render structured census insights */}
+          {renderCensusInsights()}
 
-        {data.lifestyleAnalysis && (
-          <>
-            {renderSection("Daily Schedule", data.lifestyleAnalysis.schedule)}
-            
-            {/* Marketing Insights */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Marketing Insights</Text>
+          {data.llmFeedback && (
+            <>
+              {renderSection("Financial Profile", data.llmFeedback.financialProfile)}
+              {renderSection("Risk Factors", data.llmFeedback.riskFactors)}
+              {renderSection("Opportunities", data.llmFeedback.opportunities)}
+              {renderSection("Behavioral Insights", data.llmFeedback.behavioralInsights)}
+              {renderSection("Recommendations", data.llmFeedback.recommendations)}
+            </>
+          )}
+
+          {data.lifestyleAnalysis && (
+            <>
+              {renderSection("Daily Schedule", data.lifestyleAnalysis.schedule)}
               
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Shopping Habits</Text>
-                {data.lifestyleAnalysis.marketingInsights.shoppingHabits.map((habit, index) => (
-                  <Text key={index} style={styles.insights}>{habit}</Text>
-                ))}
+              {/* Marketing Insights */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Marketing Insights</Text>
+                
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Shopping Habits</Text>
+                  {data.lifestyleAnalysis.marketingInsights.shoppingHabits.map((habit, index) => (
+                    <Text key={index} style={styles.insights}>{habit}</Text>
+                  ))}
+                </View>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Brand Preferences</Text>
+                  {data.lifestyleAnalysis.marketingInsights.brandPreferences.map((pref, index) => (
+                    <Text key={index} style={styles.insights}>{pref}</Text>
+                  ))}
+                </View>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Price Points</Text>
+                  {data.lifestyleAnalysis.marketingInsights.pricePoints.map((point, index) => (
+                    <Text key={index} style={styles.insights}>{point.category}: {point.range}</Text>
+                  ))}
+                </View>
               </View>
 
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Brand Preferences</Text>
-                {data.lifestyleAnalysis.marketingInsights.brandPreferences.map((pref, index) => (
-                  <Text key={index} style={styles.insights}>{pref}</Text>
-                ))}
+              {/* Financial Insights */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Financial Insights</Text>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Investment Profile</Text>
+                  <Text style={styles.insights}>Investment Style: {data.lifestyleAnalysis.financialInsights.investmentStyle}</Text>
+                  <Text style={styles.insights}>Risk Tolerance: {data.lifestyleAnalysis.financialInsights.riskTolerance}</Text>
+                </View>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Financial Goals</Text>
+                  {data.lifestyleAnalysis.financialInsights.financialGoals.map((goal, index) => (
+                    <Text key={index} style={styles.insights}>{goal}</Text>
+                  ))}
+                </View>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Daily Spending</Text>
+                  {data.lifestyleAnalysis.financialInsights.dailySpending.map((item, index) => (
+                    <View key={index} style={styles.row}>
+                      <Text style={styles.label}>{item.category}:</Text>
+                      <Text style={styles.value}>{formatCurrency(item.amount)}</Text>
+                    </View>
+                  ))}
+                </View>
               </View>
 
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Price Points</Text>
-                {data.lifestyleAnalysis.marketingInsights.pricePoints.map((point, index) => (
-                  <Text key={index} style={styles.insights}>{point.category}: {point.range}</Text>
-                ))}
+              {/* Location Insights */}
+              <View style={styles.section}>
+                <Text style={styles.sectionTitle}>Location Insights</Text>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Frequented Locations</Text>
+                  {data.lifestyleAnalysis.locationInsights.frequentedLocations.map((loc, index) => (
+                    <View key={index} style={styles.subsection}>
+                      <Text style={styles.insights}>{loc.type}:</Text>
+                      {loc.examples.map((example, i) => (
+                        <Text key={i} style={[styles.insights, { marginLeft: 10 }]}>• {example}</Text>
+                      ))}
+                    </View>
+                  ))}
+                </View>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Commute Patterns</Text>
+                  {data.lifestyleAnalysis.locationInsights.commutePatterns.map((pattern, index) => (
+                    <Text key={index} style={styles.insights}>• {pattern}</Text>
+                  ))}
+                </View>
+
+                <View style={styles.subsection}>
+                  <Text style={styles.subheader}>Neighborhood Preferences</Text>
+                  {data.lifestyleAnalysis.locationInsights.neighborhoodPreferences.map((pref, index) => (
+                    <Text key={index} style={styles.insights}>• {pref}</Text>
+                  ))}
+                </View>
               </View>
-            </View>
+            </>
+          )}
 
-            {/* Financial Insights */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Financial Insights</Text>
+          {renderSpendingHabits()}
 
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Investment Profile</Text>
-                <Text style={styles.insights}>Investment Style: {data.lifestyleAnalysis.financialInsights.investmentStyle}</Text>
-                <Text style={styles.insights}>Risk Tolerance: {data.lifestyleAnalysis.financialInsights.riskTolerance}</Text>
-              </View>
-
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Financial Goals</Text>
-                {data.lifestyleAnalysis.financialInsights.financialGoals.map((goal, index) => (
-                  <Text key={index} style={styles.insights}>{goal}</Text>
-                ))}
-              </View>
-
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Daily Spending</Text>
-                {data.lifestyleAnalysis.financialInsights.dailySpending.map((item, index) => (
-                  <View key={index} style={styles.row}>
-                    <Text style={styles.label}>{item.category}:</Text>
-                    <Text style={styles.value}>{formatCurrency(item.amount)}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            {/* Location Insights */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Location Insights</Text>
-
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Frequented Locations</Text>
-                {data.lifestyleAnalysis.locationInsights.frequentedLocations.map((loc, index) => (
-                  <View key={index} style={styles.subsection}>
-                    <Text style={styles.insights}>{loc.type}:</Text>
-                    {loc.examples.map((example, i) => (
-                      <Text key={i} style={[styles.insights, { marginLeft: 10 }]}>• {example}</Text>
-                    ))}
-                  </View>
-                ))}
-              </View>
-
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Commute Patterns</Text>
-                {data.lifestyleAnalysis.locationInsights.commutePatterns.map((pattern, index) => (
-                  <Text key={index} style={styles.insights}>• {pattern}</Text>
-                ))}
-              </View>
-
-              <View style={styles.subsection}>
-                <Text style={styles.subheader}>Neighborhood Preferences</Text>
-                {data.lifestyleAnalysis.locationInsights.neighborhoodPreferences.map((pref, index) => (
-                  <Text key={index} style={styles.insights}>• {pref}</Text>
-                ))}
-              </View>
-            </View>
-          </>
-        )}
-
-        {renderSpendingHabits()}
-
-        {/* Footer */}
-        <Text style={styles.footer}>
-          Report Version {data.version} • Generated by ProsperouSSS Digital Twin Analysis
-        </Text>
+          {/* Footer */}
+          <Text style={styles.footer}>
+            Report Version {data.version} • Generated by ProsperouSSS Digital Twin Analysis
+          </Text>
+        </View>
       </Page>
     </Document>
   )

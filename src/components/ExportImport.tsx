@@ -9,7 +9,7 @@ import { Upload, FileJson, FileText } from "lucide-react"
 import { type Demographics, type ExportData } from "@/lib/schema"
 import { validateDemographics } from "@/lib/census"
 import { PDFDocument } from "./PDFExport"
-import { pdf } from "@react-pdf/renderer"
+import { renderToFile } from '@react-pdf/renderer'
 import { type ValidationResult } from "@/lib/census"
 
 interface ExportImportProps {
@@ -153,28 +153,10 @@ export function ExportImport({
 
       console.log("Generating PDF with data:", exportData)
 
-      // Create the PDF document with error boundary
-      let pdfBlob: Blob | null = null
-      try {
-        pdfBlob = await pdf(React.createElement(PDFDocument, { data: exportData })).toBlob()
-      } catch (pdfError) {
-        console.error("PDF generation error:", pdfError)
-        throw new Error("Failed to generate PDF document. Please try again.")
-      }
-
-      if (!pdfBlob) {
-        throw new Error("Failed to generate PDF blob")
-      }
-
-      // Create and trigger download
-      const url = URL.createObjectURL(pdfBlob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `digital-twin-analysis-${exportData.demographics.age}yo-${exportData.demographics.occupation.toLowerCase()}.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+      await renderToFile(
+        <PDFDocument data={exportData} />,
+        'digital-twin-export.pdf'
+      )
 
       toast({
         title: "Export successful",
