@@ -15,13 +15,13 @@ interface SpendingChartProps {
 }
 
 export function SpendingChart({ data, className = '' }: SpendingChartProps) {
-  const chartData = [{
+  const chartData: Partial<Plotly.PieData>[] = [{
     type: 'pie',
     values: data.map(d => d.percentage),
     labels: data.map(d => d.category),
     text: data.map(d => d.notes),
     textinfo: 'label+percent',
-    hoverinfo: 'label+percent+text',
+    hoverinfo: 'label+percent',
     marker: {
       colors: [
         '#FF6B6B', // housing
@@ -40,7 +40,7 @@ export function SpendingChart({ data, className = '' }: SpendingChartProps) {
     title: 'Monthly Spending Distribution',
     showlegend: true,
     legend: {
-      orientation: 'h',
+      orientation: 'h' as 'h',
       y: -0.1
     },
     margin: {
