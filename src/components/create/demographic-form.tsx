@@ -56,7 +56,7 @@ export function DemographicForm({
         if (key === 'location') {
           // Handle nested location object
           Object.entries(value as Demographics['location']).forEach(([locKey, locValue]) => {
-            form.setValue(`location.${locKey}` as keyof Demographics, locValue)
+            form.setValue(`location.${locKey}` as 'location.state' | 'location.city' | 'location.zipCode', locValue)
           })
         } else {
           form.setValue(key as keyof Demographics, value)
