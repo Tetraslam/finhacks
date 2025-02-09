@@ -50,7 +50,7 @@ export function DemographicInsights({ insights, className = '' }: DemographicIns
         insights.educationComparison,
         insights.householdComparison,
         insights.maritalStatusComparison
-      ].filter(Boolean)
+      ].filter((insight): insight is string => Boolean(insight))
     },
     {
       title: "Income Analysis",
@@ -59,7 +59,7 @@ export function DemographicInsights({ insights, className = '' }: DemographicIns
         insights.incomePercentile,
         insights.incomeVsState,
         insights.monthlyIncome
-      ].filter(Boolean)
+      ].filter((insight): insight is string => Boolean(insight))
     },
     {
       title: "Education Context",
@@ -67,7 +67,7 @@ export function DemographicInsights({ insights, className = '' }: DemographicIns
       insights: [
         insights.educationTrends,
         insights.educationVsIncome
-      ].filter(Boolean)
+      ].filter((insight): insight is string => Boolean(insight))
     },
     {
       title: "Household Profile",
@@ -75,7 +75,7 @@ export function DemographicInsights({ insights, className = '' }: DemographicIns
       insights: [
         insights.householdType,
         insights.householdVsMedian
-      ].filter(Boolean)
+      ].filter((insight): insight is string => Boolean(insight))
     },
     {
       title: "Location Context",
@@ -83,7 +83,7 @@ export function DemographicInsights({ insights, className = '' }: DemographicIns
       insights: [
         insights.locationDemographics,
         insights.costOfLiving
-      ].filter(Boolean)
+      ].filter((insight): insight is string => Boolean(insight))
     },
     {
       title: "Financial Planning",
@@ -92,7 +92,7 @@ export function DemographicInsights({ insights, className = '' }: DemographicIns
         insights.suggestedSavings,
         insights.retirementProjections,
         insights.investmentPotential
-      ].filter(Boolean)
+      ].filter((insight): insight is string => Boolean(insight))
     }
   ]
 
