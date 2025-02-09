@@ -278,7 +278,7 @@ export function PDFDocument({ data }: PDFExportProps) {
                 
                 <View style={styles.subsection}>
                   <Text style={styles.subheader}>Shopping Habits</Text>
-                  {data.lifestyleAnalysis.marketingInsights.shoppingHabits.map((habit, index) => (
+                  {data.lifestyleAnalysis.marketingInsights.shoppingHabits.map((habit: string, index: number) => (
                     <Text key={index} style={styles.insights}>{habit}</Text>
                   ))}
                 </View>
